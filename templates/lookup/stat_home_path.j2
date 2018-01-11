@@ -1,0 +1,15 @@
+{% set output = [] %}
+{% if getent_passwd|d() %}
+{%   for user in (boss__bootstrap_admin_default_users + boss__bootstrap_admin_users) %}
+{%     if user.name|d() %}
+{%       if getent_passwd[user.name]|d() %}
+{%         set _ = output.append(getent_passwd[user.name][4]) %}
+{%       else %}
+{%         set _ = output.append(user.home | d(((user.system | d(boss__bootstrap_admin_system)) | ternary(boss__bootstrap_admin_home_path_system, boss__bootstrap_admin_home_path)) + user.name)) %}
+{%       endif %}
+{%     else %}
+{%       set _ = output.append('X') %}
+{%     endif %}
+{%   endfor %}
+{% endif %}
+{{ output | to_nice_yaml }}

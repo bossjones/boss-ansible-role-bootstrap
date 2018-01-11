@@ -2,4 +2,13 @@
 - name: Prepare
   hosts: all
   gather_facts: False
-  tasks: []
+  tasks:
+  # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/prepare.yml
+  - name: Create /etc/hosts.molecule file
+    file:
+      path: /etc/hosts.molecule
+      state: touch
+      owner: root
+      group: root
+      mode: 0644
+    become: true

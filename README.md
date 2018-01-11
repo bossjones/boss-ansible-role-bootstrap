@@ -36,3 +36,10 @@ Author Information
 ------------------
 
 An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+
+
+Influence
+----------------
+Strong strong influence on this repo from the debops.bootstrap ansible role!!! THIS REPO IS ONLY FOR LEARNING PURPOSES!!!
+
+https://github.com/debops/ansible-bootstrap/
