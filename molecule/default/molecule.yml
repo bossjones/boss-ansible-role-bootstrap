@@ -11,7 +11,7 @@ platforms:
   # source: https://github.com/solita/docker-systemd
   # source: https://github.com/solita/docker-systemd-ssh/blob/master/Dockerfile
   #
-  - name: xenial
+  - name: bootstrap-xenial
     image: solita/ubuntu-systemd
     image_version: latest
     privileged: True
@@ -29,11 +29,11 @@ platforms:
   #   image: retr0h/centos7-systemd-ansible
   #   image_version: latest
   #   privileged: True
-  # - name: consul-ubuntu-16.04
+  # - name: bootstrap-ubuntu-16.04
   #   image: solita/ubuntu-systemd
   #   image_version: latest
   #   privileged: True
-  # - name: consul-ubuntu-14.04
+  # - name: bootstrap-ubuntu-14.04
   #   image: ubuntu-upstart
   #   image_version: latest
   #   privileged: True
@@ -45,6 +45,16 @@ provisioner:
     # EANSIBLE0013 should not be raised for shell tasks that use globs.
     options:
       x: ANSIBLE0013
+  inventory:
+    host_vars:
+      bootstrap-xenial:
+        # SOURCE: https://github.com/osism/ansible-hosts/blob/ce8147623491011269bf15291bd8bf83397ab1ff/molecule/default/molecule.yml
+        # NOTE: workaround for https://github.com/moby/moby/issues/22281
+        hosts_file: /etc/hosts.molecule
+        management_interface: lo0
+        ansible_lo0:
+          ipv4:
+            address: 127.0.0.1
 verifier:
   name: testinfra
   options:

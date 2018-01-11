@@ -1,8 +1,20 @@
 ---
 - name: Converge
   hosts: all
+
+  vars:
+    hosts_file: /etc/hosts.molecule
+
   roles:
     - role: boss-ansible-role-bootstrap
-      bossjones__user: vagrant
-      bossjones__group: vagrant
-
+      # Disable raw commands to avoid sudo issues.
+      boss__bootstrap_raw: False
+      # Don't set domain on Travis.
+      boss__bootstrap_domain: ''
+      # Try bootstrapping a different IP address to avoid idempotency loop.
+      boss__bootstrap_ipv4: '127.0.1.2'
+      boss__hosts_file: /etc/hosts.molecule
+      boss__bootstrap_admin_default_users:
+        - name: bossjones
+      boss__bootstrap_admin_groups: [ 'admins', 'staff', 'adm', 'sudo', 'bossjones' ]
+      boss__bootstrap_admin_system: False

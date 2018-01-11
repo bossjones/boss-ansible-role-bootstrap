@@ -1,2 +1,110 @@
 ---
 # defaults file for boss-ansible-role-bootstrap
+
+# IMPORTANT THIS IS FOR LEARNING PURPOSES ONLY.
+
+# Should the hostname and domain be configured during bootstrap?
+boss__bootstrap_hostname_domain_config_enabled: '{{ (True
+                                                if (ansible_local|d() and
+                                                    ansible_local.cap12s|d() and
+                                                    (not ansible_local.cap12s.enabled|bool or
+                                                     "cap_sys_admin" in ansible_local.cap12s.list))
+                                                else False) | bool }}'
+
+# Set custom DNS domain on a given host.
+boss__bootstrap_domain: '{{ ansible_domain }}'
+
+# Set custom DNS hostname on a given host.
+boss__bootstrap_hostname: '{{ inventory_hostname_short | d(inventory_hostname) }}'
+
+# Set custom DNS hostname on a given host also for IPv6.
+# This is only needed when you don't have properly working DNS and still need
+# to resolve the hostname as IPv6 address.
+# Refer to https://github.com/debops/ansible-bootstrap/pull/9
+boss__bootstrap_hostname_v6_loopback: False
+
+# Ensure :envvar:`boss__bootstrap_mandatory_packages` are installed using ``raw`` Ansible
+# module before proceeding.
+boss__bootstrap_raw: True
+
+# Mandatory packages installed during bootstrap.
+boss__bootstrap_mandatory_packages:
+  - 'python'
+  - 'python-apt'
+
+# Base packages installed during bootstrap.
+boss__bootstrap_base_packages:
+  - 'python-pip'
+  - 'sudo'
+  - 'lsb-release'
+
+# Install additional packages during bootstrap.
+boss__bootstrap_packages: []
+
+# Enable configuration of administrator accounts.
+boss__bootstrap_admin: True
+
+# Should the admin accounts be system accounts (UID < 1000) if not specified
+# otherwise?
+boss__bootstrap_admin_system: True
+
+# List of default user accounts created by the role. See
+# :ref:`boss__bootstrap_ref_admin_users` for more details.
+boss__bootstrap_admin_default_users:
+  - name: '{{ ansible_ssh_user
+              if (ansible_ssh_user | d() and
+                  ansible_ssh_user != "root")
+              else lookup("env", "USER") }}'
+
+# List of additional user accounts created by the role. See
+# :ref:`boss__bootstrap_ref_admin_users` for more details.
+boss__bootstrap_admin_users: []
+
+# List of local system groups which admin accounts will be added to. If any
+# groups don't exists, they will be automatically created as "system" groups
+# with GID < 1000.
+#
+# The first specified group is used as the :command:`sudo` passwordless admin group.
+#
+# All new user accounts will have their home directories in the first group
+# listed here as well, to allow eaiser communication between administrators.
+boss__bootstrap_admin_groups: [ 'admins', 'staff', 'adm', 'sudo' ]
+
+# Root path of the home directory of the admin accounts, when they are "normal"
+# user accounts with UID and GID >= 1000.
+boss__bootstrap_admin_home_path: '/home'
+
+
+# Root path of the home directory of the admin accounts, when they are "system"
+# user accounts with UID and GID < 1000.
+boss__bootstrap_admin_home_path_system: '/var/local'
+
+# New admin accounts will have their home directories in this system group to
+# allow easier data exchange between system administrators.
+boss__bootstrap_admin_home_group: '{{ boss__bootstrap_admin_groups[0] }}'
+
+# Specify permissions for new admin account home directories.
+boss__bootstrap_admin_home_mode: '0750'
+
+# Default comment / GECOS field which is set on the new admin accounts if none
+# is specified.
+boss__bootstrap_admin_comment: 'System Administrator'
+
+# Default shell set on the new admin accounts if none is specified.
+boss__bootstrap_admin_shell: '/bin/bash'
+
+# List of SSH keys configured on root and administrator accounts. It takes all
+# active keys from your current ssh agent session plus all public keys which you
+# keep in the :file:`~/.ssh/` directory of the user which you are bootstraping DebOps
+# from. If you are not happy with that scenario, for example you have some keys
+# which you don't like to be included, please modify the variable accordingly
+# to your requirements.
+boss__bootstrap_admin_sshkeys: [ '{{ lookup("pipe","/bin/cat {{role_path}}/keys/*.pub || true") }}' ]
+
+# Configure passwordless :command:`sudo` access for selected accounts.
+boss__bootstrap_sudo: True
+
+# A group which grants passwordless :command:`sudo` access.
+boss__bootstrap_sudo_group: '{{ boss__bootstrap_admin_groups[0] | default("") }}'
+
+boss__hosts_file: /etc/hosts
